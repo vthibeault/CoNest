@@ -1,0 +1,205 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+  CoNest palette. Warm paper rather than clinical white — this is family
+  software, and the whole product thesis is that it should feel calmer than
+  the legal-flavoured incumbents.
+
+  Parent colours are deliberately orange vs. blue. That is the one hue pair
+  that survives the common forms of colour blindness (deuteranopia and
+  protanopia both collapse red/green, never orange/blue). Since "who has the
+  kids" is read almost entirely by colour, that has to hold for everyone.
+*/
+
+:root {
+  --radius: 0.875rem;
+
+  --background: oklch(0.984 0.005 85);
+  --foreground: oklch(0.26 0.014 60);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.26 0.014 60);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.26 0.014 60);
+
+  --primary: oklch(0.52 0.08 172);
+  --primary-foreground: oklch(0.99 0.004 85);
+
+  --secondary: oklch(0.955 0.012 80);
+  --secondary-foreground: oklch(0.32 0.02 60);
+
+  --muted: oklch(0.955 0.01 80);
+  --muted-foreground: oklch(0.52 0.016 62);
+
+  --accent: oklch(0.93 0.03 70);
+  --accent-foreground: oklch(0.3 0.02 60);
+
+  --destructive: oklch(0.58 0.16 27);
+  --destructive-foreground: oklch(0.99 0.004 85);
+
+  --border: oklch(0.9 0.012 76);
+  --input: oklch(0.9 0.012 76);
+  --ring: oklch(0.52 0.08 172);
+
+  /* Custody identity colours. */
+  --parent-a: oklch(0.64 0.135 48);
+  --parent-a-soft: oklch(0.94 0.038 60);
+  --parent-b: oklch(0.55 0.11 245);
+  --parent-b-soft: oklch(0.95 0.03 245);
+
+  --handover: oklch(0.58 0.1 300);
+}
+
+.dark {
+  --background: oklch(0.19 0.008 65);
+  --foreground: oklch(0.94 0.006 85);
+
+  --card: oklch(0.23 0.009 65);
+  --card-foreground: oklch(0.94 0.006 85);
+  --popover: oklch(0.23 0.009 65);
+  --popover-foreground: oklch(0.94 0.006 85);
+
+  --primary: oklch(0.7 0.09 172);
+  --primary-foreground: oklch(0.19 0.008 65);
+
+  --secondary: oklch(0.28 0.01 65);
+  --secondary-foreground: oklch(0.94 0.006 85);
+
+  --muted: oklch(0.28 0.01 65);
+  --muted-foreground: oklch(0.68 0.014 70);
+
+  --accent: oklch(0.32 0.018 65);
+  --accent-foreground: oklch(0.94 0.006 85);
+
+  --destructive: oklch(0.62 0.16 27);
+  --destructive-foreground: oklch(0.98 0.004 85);
+
+  --border: oklch(0.32 0.012 65);
+  --input: oklch(0.34 0.012 65);
+  --ring: oklch(0.7 0.09 172);
+
+  --parent-a: oklch(0.72 0.13 52);
+  --parent-a-soft: oklch(0.33 0.05 50);
+  --parent-b: oklch(0.68 0.11 245);
+  --parent-b-soft: oklch(0.3 0.045 250);
+
+  --handover: oklch(0.72 0.1 300);
+}
+
+/*
+  Auto dark. Tokens are duplicated rather than driven by a class-setting
+  script: no flash of the wrong theme, no hydration mismatch, no JS. The
+  `:not(.light)` guard leaves room for an explicit toggle later.
+*/
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --background: oklch(0.19 0.008 65);
+    --foreground: oklch(0.94 0.006 85);
+
+    --card: oklch(0.23 0.009 65);
+    --card-foreground: oklch(0.94 0.006 85);
+    --popover: oklch(0.23 0.009 65);
+    --popover-foreground: oklch(0.94 0.006 85);
+
+    --primary: oklch(0.7 0.09 172);
+    --primary-foreground: oklch(0.19 0.008 65);
+
+    --secondary: oklch(0.28 0.01 65);
+    --secondary-foreground: oklch(0.94 0.006 85);
+
+    --muted: oklch(0.28 0.01 65);
+    --muted-foreground: oklch(0.68 0.014 70);
+
+    --accent: oklch(0.32 0.018 65);
+    --accent-foreground: oklch(0.94 0.006 85);
+
+    --destructive: oklch(0.62 0.16 27);
+    --destructive-foreground: oklch(0.98 0.004 85);
+
+    --border: oklch(0.32 0.012 65);
+    --input: oklch(0.34 0.012 65);
+    --ring: oklch(0.7 0.09 172);
+
+    --parent-a: oklch(0.72 0.13 52);
+    --parent-a-soft: oklch(0.33 0.05 50);
+    --parent-b: oklch(0.68 0.11 245);
+    --parent-b-soft: oklch(0.3 0.045 250);
+
+    --handover: oklch(0.72 0.1 300);
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-parent-a: var(--parent-a);
+  --color-parent-a-soft: var(--parent-a-soft);
+  --color-parent-b: var(--parent-b);
+  --color-parent-b-soft: var(--parent-b-soft);
+  --color-handover: var(--handover);
+
+  --font-sans: var(--font-figtree);
+  --font-display: var(--font-fraunces);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /*
+    iOS Safari zooms the viewport when a focused input's font-size is under
+    16px. Mid-handover in a car park that is genuinely disruptive.
+  */
+  input,
+  select,
+  textarea {
+    font-size: max(16px, 1rem);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@utility font-display {
+  font-family: var(--font-display), ui-serif, Georgia, serif;
+}
