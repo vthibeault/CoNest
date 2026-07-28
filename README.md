@@ -82,12 +82,23 @@ anchored to it, so the schedule doesn't shift when you travel.
 | `npm run check` | Typecheck, lint and tests together |
 | `./scripts/db-test.sh` | Schema, RLS isolation and money maths against a real Postgres |
 
-`db-test.sh` boots its own throwaway Postgres cluster and needs no Docker. It
-applies `supabase/tests/00_supabase_shim.sql`, which stubs the parts of Supabase
-the schema leans on (`auth.uid()`, the `auth` and `storage` schemas, and the
-`anon`/`authenticated`/`service_role` grants). Those grants matter: without
-them the isolation tests would pass because of a missing GRANT rather than a
-working policy.
+`db-test.sh` boots its own throwaway Postgres cluster and needs no Docker. To
+run it against a server you already have — a CI service container, or
+`supabase start` — set the usual libpq variables instead, and only `psql` is
+needed locally:
+
+```bash
+PGHOST=localhost PGPORT=5432 PGUSER=postgres PGPASSWORD=postgres ./scripts/db-test.sh
+```
+
+Either way it applies `supabase/tests/00_supabase_shim.sql`, which stubs the
+parts of Supabase the schema leans on (`auth.uid()`, the `auth` and `storage`
+schemas, and the `anon`/`authenticated`/`service_role` grants). Those grants
+matter: without them the isolation tests would pass because of a missing GRANT
+rather than a working policy. Against a real `supabase start`, skip the shim
+with `NO_SHIM=1`.
+
+Both jobs run in CI on every pull request — see `.github/workflows/ci.yml`.
 
 ## How it is put together
 

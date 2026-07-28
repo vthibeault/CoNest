@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A newer push supersedes an in-flight run on the same branch.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Typecheck, lint, tests, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+
+      # Deliberately no Supabase env vars here. Every page that touches the
+      # database is server-rendered on demand, so the build must not need
+      # credentials — and if someone later prerenders a page that does, this
+      # step should fail rather than be quietly propped up by placeholders.
+      - run: npm run build
+
+  database:
+    name: Schema, RLS isolation, money maths
+    runs-on: ubuntu-latest
+
+    # Pinned rather than relying on whatever PostgreSQL the runner image ships.
+    # The official image includes contrib, which is where pgcrypto and
+    # btree_gist come from — btree_gist is what makes the custody no-overlap
+    # exclusion constraint possible.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install psql
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends postgresql-client
+
+      # Applies all six migrations, then proves one family cannot read, write,
+      # join, invite or store into another's data, and that the balance maths
+      # holds across uneven splits, partial settlements and pending expenses.
+      - name: Run database test suite
+        run: ./scripts/db-test.sh
+        env:
+          PGHOST: localhost
+          PGPORT: "5432"
+          PGUSER: postgres
+          PGPASSWORD: postgres
