@@ -1,0 +1,68 @@
+name: Preview
+
+# Publishes the static UI preview (preview/app) to GitHub Pages.
+#
+# This is NOT the working app. CoNest is server-rendered — middleware, server
+# actions, cookie-backed sessions — and none of that can run on a static host.
+# What ships here is the real calendar components against fixed sample data, so
+# the design can be looked at from a URL without a Supabase project. For a live,
+# working preview, deploy to Vercel.
+#
+# Requires Pages to be enabled once, by hand:
+#   Settings -> Pages -> Build and deployment -> Source: GitHub Actions
+#
+# workflow_dispatch is here so the preview can be published from a branch
+# before it merges. Pages hosts a single site, so whichever run went last is
+# what the URL shows.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never cancel a half-finished deployment; queue instead.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build static preview
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build preview
+        run: ./scripts/build-preview.sh "$GITHUB_WORKSPACE/preview-dist"
+        env:
+          # Project Pages serve from /<repo>, so assets need that prefix.
+          PREVIEW_BASE_PATH: /${{ github.event.repository.name }}
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: preview-dist
+
+  deploy:
+    name: Deploy to Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
